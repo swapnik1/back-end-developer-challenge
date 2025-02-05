@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as characterService from '../services/characterService';
+import { DefenseType } from '../../types';
 
 export const dealDamage = (req: Request, res: Response) => {
 	const { damage, type } = req.body;
@@ -9,10 +10,19 @@ export const dealDamage = (req: Request, res: Response) => {
 	let finalDamage = damage;
 
 	if (defense) {
-		if (defense.defense === 'immunity') {
+		if (defense.defense === DefenseType.Immunity) {
 			finalDamage = 0;
-		} else if (defense.defense === 'resistance') {
+		} else if (defense.defense === DefenseType.Resistance) {
 			finalDamage = Math.floor(damage / 2);
+		}
+	}
+
+	// Reduce temp hp before the actual hp
+	if(character.temporaryHitPoints) {
+		character.temporaryHitPoints -= finalDamage
+		if(character.temporaryHitPoints < 0) {
+			finalDamage = -character.temporaryHitPoints
+			character.temporaryHitPoints = 0
 		}
 	}
 
