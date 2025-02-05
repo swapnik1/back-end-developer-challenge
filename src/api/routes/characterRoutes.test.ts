@@ -126,4 +126,74 @@ describe('Character API Endpoints', () => {
 			expect(resHigher.body.character.temporaryHitPoints).toBe(8);
 		});
 	});
+
+	describe('POST /deal-damage - Negative Test Cases', () => {
+		it('should return 400 when damage is not an integer', async () => {
+			const response = await request(app)
+			.post('/api/character/deal-damage')
+			.send({ damage: 'ten', type: 'fire' });
+
+			expect(response.status).toBe(400);
+			expect(response.body.error).toBe('Damage must be a positive integer.');
+		});
+
+		it('should return 400 when damage field is missing', async () => {
+			const response = await request(app)
+			.post('/api/character/deal-damage')
+			.send({ type: 'fire' });
+
+			expect(response.status).toBe(400);
+			expect(response.body.error).toBe('Damage must be a positive integer.');
+		});
+
+		it('should return 400 when damage type is invalid', async () => {
+			const response = await request(app)
+			.post('/api/character/deal-damage')
+			.send({ damage: 10, type: 'unknown' });
+
+			expect(response.status).toBe(400);
+			expect(response.body.error).toBe('Invalid damage type.');
+		});
+
+		it('should return 400 when damage is negative (if not allowed)', async () => {
+			const response = await request(app)
+			.post('/api/character/deal-damage')
+			.send({ damage: -5, type: 'fire' });
+
+			expect(response.status).toBe(400);
+			expect(response.body.error).toBe('Damage must be a positive integer.');
+		});
+	});
+
+	describe('POST /heal - Negative Test Cases', () => {
+		it('should return 400 if amount is not an integer', async () => {
+			const res = await request(app)
+			.post('/api/character/heal')
+			.send({ amount: 'five' });
+			expect(res.status).toBe(400);
+		});
+
+		it('should return 400 if amount is missing', async () => {
+			const res = await request(app)
+			.post('/api/character/heal')
+			.send({});
+			expect(res.status).toBe(400);
+		});
+	});
+
+	describe('POST /add-temporary-hit-points - Negative Test Cases', () => {
+		it('should return 400 if tempHP is not an integer', async () => {
+			const res = await request(app)
+			.post('/api/character/add-temporary-hit-points')
+			.send({ tempHP: 'ten' });
+			expect(res.status).toBe(400);
+		});
+
+		it('should return 400 if tempHP is missing', async () => {
+			const res = await request(app)
+			.post('/api/character/add-temporary-hit-points')
+			.send({});
+			expect(res.status).toBe(400);
+		});
+	});
 });
